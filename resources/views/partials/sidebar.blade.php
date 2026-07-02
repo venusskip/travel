@@ -25,13 +25,14 @@
                 Rute
             </a>
 
-            <a href="{{ route('admin.pemesanan') }}"
-            class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition {{ request()->routeIs('admin.pemesanan') ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+             <a href="{{ route('admin.booking.index') }}"
+            class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition
+            {{ request()->routeIs('admin.booking.*') ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
                 Pemesanan
             </a>
 
-            <a href="{{ route('admin.user') }}"
-            class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition {{ request()->routeIs('admin.user') ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+            <a href="{{ route('admin.user.index') }}"
+            class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition {{ request()->routeIs('admin.user.*') ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
                 User
             </a>
 
