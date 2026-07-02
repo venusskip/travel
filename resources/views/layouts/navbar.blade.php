@@ -11,20 +11,22 @@
             <div class="hidden md:flex space-x-4 text-sm font-medium">
                 <a href="/beranda" class="{{ request()->is('/') ? 'text-blue-600 bg-blue-50' : 'text-gray-500 hover:text-blue-600' }} px-4 py-2 rounded-lg transition">Beranda</a>
                 <a href="/jadwal" class="{{ request()->is('jadwal') ? 'text-blue-600 bg-blue-50' : 'text-gray-500 hover:text-blue-600' }} px-4 py-2 rounded-lg transition">Jadwal Travel</a>
-                <a href="#" class="text-gray-500 hover:text-blue-600 px-4 py-2 rounded-lg transition">Riwayat</a>
+                <a href="/riwayat" class="text-gray-500 hover:text-blue-600 px-4 py-2 rounded-lg transition">Riwayat</a>
             </div>
 
             <div class="flex items-center space-x-4">
-                <button class="text-gray-400 hover:text-blue-600 p-2">
+                <a href="/keranjang" class="text-gray-400 hover:text-blue-600 p-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+               </a>
                 </button>
                 <button class="flex items-center space-x-1.5 bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-gray-200 transition">
                     <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path></svg>
                     <span>Admin</span>
                 </button>
-                <div class="flex items-center space-x-2 pl-2 border-l border-gray-200">
+                <a href="/profil" class="flex items-center space-x-2 pl-2 border-l border-gray-200">
                     <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-xs">RD</div>
                     <span class="text-xs font-semibold text-gray-700 hidden sm:inline">Rahmat Dhani</span>
+                </a>
                 </div>
             </div>
         </div>
