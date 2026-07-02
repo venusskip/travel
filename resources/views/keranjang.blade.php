@@ -86,12 +86,12 @@
                     <span class="text-base font-bold text-blue-600 tracking-wide">Rp 75.000</span>
                 </div>
 
-                <button class="w-full bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold py-3.5 px-4 rounded-xl flex items-center justify-center gap-1.5 shadow-sm shadow-orange-500/10 transition">
+                <a href="/checkout" class="w-full bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold py-3.5 px-4 rounded-xl flex items-center justify-center gap-1.5 shadow-sm shadow-orange-500/10 transition">
                     <span>Checkout</span>
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                     </svg>
-                </button>
+                    </a>
             </div>
 
         </div>

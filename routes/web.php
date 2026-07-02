@@ -40,4 +40,8 @@ Route::get('/keranjang', function () {
     return view('keranjang');
 });
 
+Route::get('/checkout', function () {
+    return view('checkout');
+});
+
 require __DIR__.'/auth.php';
