@@ -17,6 +17,10 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('role')->default('user'); // Defaultnya adalah 'user', bisa diubah ke 'admin'
+            $table->string('phone')->nullable();
+            $table->text('address')->nullable();
+
             $table->rememberToken();
             $table->timestamps();
         });
