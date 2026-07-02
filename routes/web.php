@@ -28,4 +28,16 @@ Route::get('/register', function () {
     return view('register');
 });
 
+Route::get('/riwayat', function () {
+    return view('riwayat'); // mengarah ke file riwayat.blade.php
+});
+
+Route::get('/profil', function () {
+    return view('profil');
+});
+
+Route::get('/keranjang', function () {
+    return view('keranjang');
+});
+
 require __DIR__.'/auth.php';
