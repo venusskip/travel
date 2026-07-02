@@ -78,8 +78,8 @@
                         <span class="bg-emerald-50 text-emerald-600 text-[10px] px-2.5 py-1 rounded-md font-semibold">{{ $j['kursi'] }} kursi tersisa</span>
                     </div>
                 </div>
-        </a>
-        @endforeach
+            </a>
+            @endforeach
         </div>
     </main>
 

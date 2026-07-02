@@ -38,8 +38,15 @@
                 <div class="flex-grow border-t border-gray-100"></div>
             </div>
 
-            <form action="#" method="POST" onsubmit="event.preventDefault();" class="space-y-4">
+            <form action="{{ route('login') }}" method="POST" class="space-y-4">
+                @csrf
                 
+                @if ($errors->any())
+                    <div class="bg-red-50 border border-red-200 text-red-600 text-xs p-3 rounded-xl font-medium">
+                        {{ $errors->first() }}
+                    </div>
+                @endif
+
                 <div>
                     <label class="block text-xs font-bold text-slate-800 mb-2" for="email">Email</label>
                     <div class="relative">
@@ -48,14 +55,15 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                             </svg>
                         </span>
-                        <input class="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-xs text-gray-700 placeholder-gray-300 focus:outline-none focus:border-blue-500 transition font-medium" type="email" id="email" placeholder="you@example.com">
+                        <input class="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-xs text-gray-700 placeholder-gray-300 focus:outline-none focus:border-blue-500 transition font-medium" 
+                               type="email" id="email" name="email" placeholder="you@example.com" value="{{ old('email') }}" required autofocus>
                     </div>
                 </div>
 
                 <div>
                     <div class="flex justify-between items-center mb-2">
                         <label class="block text-xs font-bold text-slate-800" for="password">Password</label>
-                        <a href="#" class="text-[11px] font-semibold text-blue-600 hover:underline">Forgot password?</a>
+                        <a href="{{ route('password.request') }}" class="text-[11px] font-semibold text-blue-600 hover:underline">Forgot password?</a>
                     </div>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
@@ -63,7 +71,8 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                             </svg>
                         </span>
-                        <input class="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-xs text-gray-700 placeholder-gray-300 focus:outline-none focus:border-blue-500 transition font-medium" type="password" id="password" value="password123">
+                        <input class="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-xs text-gray-700 placeholder-gray-300 focus:outline-none focus:border-blue-500 transition font-medium" 
+                        type="password" id="password" name="password" placeholder="••••••••" required>
                     </div>
                 </div>
 
@@ -75,7 +84,7 @@
         </div>
 
         <p class="text-xs text-gray-400 font-medium">
-            Don't have an account? <a href="#" class="text-blue-600 font-bold hover:underline">Create one</a>
+            Don't have an account? <a href="{{ route('register') }}" class="text-blue-600 font-bold hover:underline">Create one</a>
         </p>
 
     </div>
