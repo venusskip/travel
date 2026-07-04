@@ -1,89 +1,89 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\TravelScheduleController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\JadwalController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Admin\UserController;
-// Route untuk checkout user
+use App\Http\Controllers\AuthController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\LaporanController;
 
-Route::get('/', function () {
-    return view('welcome');
+// ==========================================
+// 1. HALAMAN YANG BISA DIAKSES TANPA LOGIN
+// ==========================================
+Route::get('/', [HomeController::class, 'index'])->name('beranda');
+Route::get('/jadwal', [TravelScheduleController::class, 'index'])->name('jadwal.travel');
+Route::get('/detail-travel/{id}', [TravelScheduleController::class, 'show'])->name('jadwal.detail');
+
+// Rute Tamu (Hanya bisa diakses jika BELUM login)
+Route::middleware('guest')->group(function () {
+    Route::get('/login', function () { return view('login'); })->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+    
+    Route::get('/register', function () { return view('register'); })->name('register');
+    Route::post('/register', [AuthController::class, 'register']);
 });
 
-// Bungkus rute admin dalam group prefix
-Route::prefix('admin')->name('admin.')->group(function () {
+// ==========================================
+// 2. HALAMAN YANG WAJIB LOGIN (USER BIASA)
+// ==========================================
+Route::middleware(['auth'])->group(function () {
+    // Proses Logout (Menggunakan AuthController asli Anda)
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
+    // Halaman Keranjang Belanja
+    Route::get('/keranjang', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/keranjang/tambah', [CartController::class, 'store'])->name('cart.store');
+    Route::delete('/keranjang/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
 
-    // Ganti rute jadwal lama kamu dengan ini:
+    // Halaman Transaksi & Data Diri Pengguna
+    Route::get('/checkout', [BookingController::class, 'showCheckout'])->name('checkout');
+    Route::post('/checkout', [BookingController::class, 'storeCheckout'])->name('checkout.store');
+    Route::get('/riwayat', [BookingController::class, 'riwayatUser'])->name('riwayat');
+    
+    // Manajemen Profil (Sudah dibersihkan dari duplikasi rute ganda)
+    Route::get('/profil', [ProfileController::class, 'show'])->name('profile.show');
+    Route::put('/profil/update', [ProfileController::class, 'update'])->name('profile.update');
+});
+
+// ==========================================
+// 3. HALAMAN POLA PROTEKSI ADMIN (PREFIX)
+// ==========================================
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
+    
+   Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+    // Manajemen Jadwal Travel Sisi Admin
     Route::get('/jadwal', [JadwalController::class, 'index'])->name('jadwal');
     Route::post('/jadwal', [JadwalController::class, 'store'])->name('jadwal.store');
     Route::put('/jadwal/{id}', [JadwalController::class, 'update'])->name('jadwal.update');
     Route::delete('/jadwal/{id}', [JadwalController::class, 'destroy'])->name('jadwal.destroy');
     
-    // PERBAIKAN: Mengarahkan halaman rute ke RouteController fungsi index
+    // Manajemen Rute Sisi Admin
     Route::get('/rute', [RouteController::class, 'index'])->name('rute');
-    
-    // Tambahkan ini juga agar fungsi Simpan, Update, dan Hapus di dalam admin berjalan lancar
     Route::post('/rute', [RouteController::class, 'store'])->name('rute.store');
     Route::put('/rute/{id}', [RouteController::class, 'update'])->name('rute.update');
     Route::delete('/rute/{id}', [RouteController::class, 'destroy'])->name('rute.destroy');
 
-   // 2. MODIFIKASI RUTE PEMESANAN ADMIN DI SINI
-    // Mengarahkan ke BookingController fungsi index & updateStatus, otomatis bernama admin.booking.index dan admin.booking.updateStatus
+    // Manajemen Pemesanan Sisi Admin
     Route::get('/pemesanan', [BookingController::class, 'index'])->name('booking.index');
     Route::patch('/booking/{id}/status', [BookingController::class, 'updateStatus'])->name('booking.updateStatus');
     
-
-    // Rute resource untuk manajemen user
+    // RUTE BARU: Menangani penghapusan data transaksi dan pengosongan kursi via Admin
+    Route::delete('/booking/{id}', [BookingController::class, 'destroy'])->name('booking.destroy');
+    
+    // Manajemen User
     Route::resource('user', UserController::class)->only(['index', 'update']);
 
-    Route::get('/laporan', function () {
-        return view('admin.laporan');
-    })->name('laporan');
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');});
+    
 
-});
-
-Route::get('/beranda', function () {
-    return view('beranda');
-});
-
-Route::get('/jadwal', function () {
-    return view('jadwaltravel');
-});
-
-Route::get('/detail-travel', function () {
-    return view('detailtravel');
-});
-
-// Rute Halaman Login
-Route::get('/login', function () {
-    return view('login');
-});
-
-// Rute Halaman Register
-Route::get('/register', function () {
-    return view('register');
-});
-
-Route::get('/riwayat', function () {
-    return view('riwayat'); // mengarah ke file riwayat.blade.php
-});
-
-Route::get('/profil', function () {
-    return view('profil');
-});
-
-Route::get('/keranjang', function () {
-    return view('keranjang');
-});
-
-Route::get('/checkout', function () {
-    return view('checkout');
-});
-
-require __DIR__.'/auth.php';
-
+// Menjaga kompatibilitas jika ada file auth bawaan lama
+if (file_exists(__DIR__.'/auth.php')) {
+    require __DIR__.'/auth.php';
+}

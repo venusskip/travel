@@ -8,30 +8,36 @@
 </head>
 <body class="bg-gray-50 flex flex-col min-h-screen font-sans">
 
-    <!-- Memanggil Navbar -->
     @include('layouts.navbar') 
 
-    <!-- KONTEN UTAMA PROFIL -->
     <main class="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
         
         <div class="max-w-2xl mx-auto">
             
             <h1 class="text-3xl font-bold text-left text-[#0f172a] tracking-tight mb-8">Profil Saya</h1>
 
+            @if(session('success'))
+                <div class="mb-4 p-4 bg-green-100 border border-green-200 text-green-700 rounded-xl text-sm font-medium">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             <div class="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden w-full">
                 
                 <div class="bg-blue-600 pt-10 pb-8 flex flex-col items-center justify-center text-white">
                     <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center text-white font-semibold text-3xl mb-3 border border-white/30">
-                        R
+                        {{ strtoupper(substr($user->name, 0, 1)) }}
                     </div>
-                    <h2 class="text-xl font-bold tracking-wide">Rahmat Dhani</h2>
-                    <p class="text-xs text-blue-100 font-light mt-0.5">rahmatdhaniii38@gmail.com</p>
-                    <span class="mt-2 bg-white/20 text-white text-[10px] font-medium px-3 py-0.5 rounded-full border border-white/20">
-                        Admin
+                    <h2 class="text-xl font-bold tracking-wide">{{ $user->name }}</h2>
+                    <p class="text-xs text-blue-100 font-light mt-0.5">{{ $user->email }}</p>
+                    <span class="mt-2 bg-white/20 text-white text-[10px] font-medium px-3 py-0.5 rounded-full border border-white/20 uppercase">
+                        {{ $user->role }}
                     </span>
                 </div>
 
-                <div class="p-8 space-y-5">
+                <form action="{{ route('profile.update') }}" method="POST" class="p-8 space-y-5">
+                    @csrf
+                    @method('PUT')
                     
                     <div class="space-y-1.5">
                         <label class="text-xs font-semibold text-slate-700 flex items-center gap-2">
@@ -40,8 +46,8 @@
                             </svg>
                             Nama
                         </label>
-                        <input type="text" value="Rahmat Dhani" disabled
-                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-700 focus:outline-none">
+                        <input type="text" value="{{ $user->name }}" disabled
+                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-400 focus:outline-none cursor-not-allowed">
                     </div>
 
                     <div class="space-y-1.5">
@@ -51,8 +57,8 @@
                             </svg>
                             Email
                         </label>
-                        <input type="email" value="rahmatdhaniii38@gmail.com" disabled
-                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-700 focus:outline-none">
+                        <input type="email" value="{{ $user->email }}" disabled
+                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-400 focus:outline-none cursor-not-allowed">
                     </div>
 
                     <div class="space-y-1.5">
@@ -62,8 +68,8 @@
                             </svg>
                             No HP
                         </label>
-                        <input type="text" placeholder="Masukkan No HP" disabled
-                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-400 placeholder-gray-400 focus:outline-none">
+                        <input type="text" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="Masukkan No HP"
+                            class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400">
                     </div>
 
                     <div class="space-y-1.5">
@@ -74,18 +80,19 @@
                             </svg>
                             Alamat
                         </label>
-                        <textarea placeholder="Masukkan alamat" rows="3" disabled
-                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-400 placeholder-gray-400 resize-none focus:outline-none"></textarea>
+                        <textarea name="address" placeholder="Masukkan alamat" rows="3"
+                            class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-700 placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400">{{ old('address', $user->address) }}</textarea>
                     </div>
 
                     <div class="flex items-center gap-4 pt-2">
-                        <button class="flex-grow bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2 shadow-sm transition">
+                        <button type="submit" class="flex-grow bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2 shadow-sm transition">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
                             </svg>
                             Simpan
                         </button>
-                        <button class="bg-white hover:bg-red-50 text-red-500 border border-red-200 text-sm font-semibold py-3 px-5 rounded-xl flex items-center justify-center gap-2 transition">
+                        
+                        <button type="button" onclick="document.getElementById('logout-form').submit();" class="bg-white hover:bg-red-50 text-red-500 border border-red-200 text-sm font-semibold py-3 px-5 rounded-xl flex items-center justify-center gap-2 transition">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                             </svg>
@@ -93,7 +100,12 @@
                         </button>
                     </div>
 
-                </div>
+                </form>
+
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+                    @csrf
+                </form>
+
             </div>
 
             <div class="text-center mt-6">
@@ -105,7 +117,6 @@
         </div>
     </main>
 
-    <!-- Memanggil Footer -->
     @include('layouts.footer')
 
 </body>
