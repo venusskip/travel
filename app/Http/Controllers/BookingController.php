@@ -7,6 +7,9 @@ use App\Models\Booking;
 use App\Models\CartItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
@@ -31,33 +34,51 @@ class BookingController extends Controller
 
     // 2. Proses Menyimpan Form Checkout Dinamis
     public function storeCheckout(Request $request)
-    {
-        $request->validate([
-            'payment_method' => 'required',
-            'nama_penumpang' => 'required|string|max:255',
-            'telepon_penumpang' => 'required|string',
-            'email_penumpang' => 'required|email'
-        ], [
-            'payment_method.required' => 'Silakan pilih metode pembayaran terlebih dahulu!',
-        ]);
+{
+    $request->validate([
+        'payment_method' => 'required',
+        'nama_penumpang' => 'required|string|max:255',
+        'telepon_penumpang' => 'required|string',
+        'email_penumpang' => 'required|email'
+    ], [
+        'payment_method.required' => 'Silakan pilih metode pembayaran terlebih dahulu!',
+    ]);
 
-        $user = Auth::user();
-        $cartItems = CartItem::where('created_by_id', $user->id)->get();
+    $user = Auth::user();
+    $cartItems = CartItem::where('created_by_id', $user->id)->get();
 
-        $statusAwal = ($request->payment_method === 'Bayar di Tempat') ? 'Menunggu Pembayaran' : 'Selesai';
+    if ($cartItems->isEmpty()) {
+        return redirect()->route('cart.index')->withErrors(['cart_empty' => 'Keranjang Anda kosong!']);
+    }
+
+    $statusAwal = ($request->payment_method === 'Bayar di Tempat') ? 'Menunggu Pembayaran' : 'Selesai';
+
+    // Gunakan Database Transaction agar data konsisten jika terjadi error di tengah jalan
+    try {
+        DB::beginTransaction();
 
         foreach ($cartItems as $item) {
-            // Cari data jadwal aslinya
-            $jadwal = TravelSchedule::find($item->id_jadwal);
+            // Gunakan lockForUpdate() agar record jadwal ini dikunci sementara sampai proses verifikasi selesai
+            $jadwal = TravelSchedule::where('id', $item->id_jadwal)->lockForUpdate()->first();
             
             if ($jadwal) {
-                // Ambil data kursi terpesan saat ini (default array kosong jika null)
-                $currentSeats = $jadwal->kursi_terpesan ?? [];
+                // 1. AMBIL KURSI YANG SUDAH TERPESAN DI DATABASE
+                $kursiTerpesan = $jadwal->kursi_terpesan ?? [];
                 
-                // Gabungkan kursi lama dengan kursi baru dari keranjang belanja
-                $updatedSeats = array_merge($currentSeats, $item->kursi_dipilih);
+                // 2. CEK APAKAH ADA KURSI DI KERANJANG USER YANG SUDAH TERISI
+                $kursiBentrokan = array_intersect($item->kursi_dipilih, $kursiTerpesan);
                 
-                // Hilangkan duplikasi angka jika ada, lalu urutkan nomornya
+                if (!empty($kursiBentrokan)) {
+                    // Batalkan transaksi dan kembalikan ke keranjang dengan pesan error
+                    DB::rollBack();
+                    $nomorBentrokan = implode(', ', $kursiBentrokan);
+                    return redirect()->route('cart.index')->withErrors([
+                        'kursi_habis' => "Gagal Checkout! Kursi nomor ($nomorBentrokan) pada perjalanan {$jadwal->nama_travel} baru saja dipesan oleh orang lain beberapa saat yang lalu. Silakan hapus item tersebut atau pilih kursi lain."
+                    ]);
+                }
+
+                // 3. JIKA AMAN, GABUNGKAN SEPERTI BIASA
+                $updatedSeats = array_merge($kursiTerpesan, $item->kursi_dipilih);
                 $updatedSeats = array_unique($updatedSeats);
                 sort($updatedSeats);
 
@@ -71,7 +92,7 @@ class BookingController extends Controller
             // Simpan data transaksi booking
             Booking::create([
                 'created_by_id'     => $user->id, 
-                'id_jadwal'         => $item->id_jadwal, // Kolom relasi jadwal Anda adalah id_jadwal
+                'id_jadwal'         => $item->id_jadwal,
                 'nama_travel'       => $item->nama_travel,
                 'kota_asal'         => $item->kota_asal,
                 'kota_tujuan'       => $item->kota_tujuan,
@@ -94,8 +115,14 @@ class BookingController extends Controller
             $item->delete();
         }
 
+        DB::commit();
         return redirect()->route('riwayat')->with('success', 'Pemesanan tiket Anda berhasil diproses!');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->route('cart.index')->withErrors(['system_error' => 'Terjadi kesalahan sistem saat memproses pesanan Anda: ' . $e->getMessage()]);
     }
+}
 
     // 3. Tampilan Manajemen Pemesanan Sisi Admin
     public function index(Request $request)
@@ -175,4 +202,47 @@ class BookingController extends Controller
 
         return redirect()->back()->with('success', 'Pemesanan berhasil dihapus dan status kursi telah dikosongkan kembali!');
     }
+
+    // Fungsi untuk cetak PDF Tiket
+public function cetakTiket($id)
+{
+    $booking = Booking::findOrFail($id);
+
+    if ($booking->status !== 'Selesai') {
+        return redirect()->back()->with('errors', 'Tiket belum lunas atau tidak dapat dicetak.');
+    }
+
+    // URL unik untuk di-scan supir
+    $scanUrl = route('booking.scan', $booking->id);
+    
+    // QR Code menggunakan Google API (Aman dijalankan di browser)
+    $qrcodeUrl = "https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=" . urlencode($scanUrl) . "&choe=UTF-8";
+
+    // Kita return sebagai view HTML biasa, bukan PDF!
+    return view('ticket_print', compact('booking', 'qrcodeUrl'));
+}
+// Fungsi untuk Validasi Scan QR Code oleh Supir
+public function scanTiket($id)
+{
+    $booking = Booking::findOrFail($id);
+
+    // Cek jika status tiket belum lunas
+    if ($booking->status !== 'Selesai') {
+        $pesan = "Tiket Gagal Validasi! Pembayaran belum lunas.";
+        $tipe = "error";
+    } 
+    // Cek jika sudah pernah di-scan sebelumnya
+    elseif ($booking->is_checked_in) {
+        $pesan = "PERINGATAN! Tiket dengan kode #{$booking->kode_pemesanan} SUDAH PERNAH DIGUNAKAN sebelumnya.";
+        $tipe = "warning";
+    } 
+    // Jika valid dan baru pertama kali scan
+    else {
+        $booking->update(['is_checked_in' => true]);
+        $pesan = "Tiket BERHASIL Diverifikasi! Penumpang atas nama {$booking->nama_penumpang} silahkan naik ke mobil.";
+        $tipe = "success";
+    }
+
+    return view('scan_result', compact('booking', 'pesan', 'tipe'));
+}
 }

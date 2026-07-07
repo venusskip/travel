@@ -23,6 +23,10 @@ Route::get('/', [HomeController::class, 'index'])->name('beranda');
 Route::get('/jadwal', [TravelScheduleController::class, 'index'])->name('jadwal.travel');
 Route::get('/detail-travel/{id}', [TravelScheduleController::class, 'show'])->name('jadwal.detail');
 
+// Tambahkan 2 baris rute ini:
+Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+
 // Rute Tamu (Hanya bisa diakses jika BELUM login)
 Route::middleware('guest')->group(function () {
     Route::get('/login', function () { return view('login'); })->name('login');
@@ -75,7 +79,13 @@ Route::middleware(['auth'])->group(function () {
     // Manajemen Profil
     Route::get('/profil', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profil/update', [ProfileController::class, 'update'])->name('profile.update');
+
+    // Tambahkan ini untuk cetak PDF tiket user
+    Route::get('/booking/{id}/cetak', [BookingController::class, 'cetakTiket'])->name('booking.cetak');
 });
+
+// Rute Scan QR Code Supir (Bisa diakses umum via HP)
+Route::get('/booking/{id}/scan', [BookingController::class, 'scanTiket'])->name('booking.scan');
 
 
 // ==========================================
@@ -108,6 +118,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::resource('user', UserController::class)->only(['index', 'update']);
 
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
+    
 });
     
 
