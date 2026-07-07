@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role', 'phone', 'address'])] // Tambahkan role, phone, address di sini
+// 🔴 PERBAIKAN: Menambahkan 'google_id' ke dalam array Fillable agar diizinkan masuk ke database
+#[Fillable(['name', 'email', 'google_id', 'password', 'role', 'phone', 'address'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {

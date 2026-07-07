@@ -16,7 +16,7 @@ class Booking extends Model
         'kota_asal', 'kota_tujuan', 'tanggal_berangkat', 'jam_berangkat',
         'jumlah_tiket', 'kursi_dipilih', 'harga_per_tiket', 'total_harga',
         'nama_penumpang', 'telepon_penumpang', 'email_penumpang',
-        'alamat_penumpang', 'metode_pembayaran', 'status', 'jenis_layanan'
+        'alamat_penumpang', 'metode_pembayaran', 'status', 'jenis_layanan','is_checked_in'
     ];
 
     protected $casts = [

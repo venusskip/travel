@@ -25,12 +25,12 @@
 
         <div class="w-full bg-white border border-gray-100 rounded-2xl p-7 shadow-sm mb-6">
             
-            <button class="w-full border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold text-xs py-3 px-4 rounded-xl flex items-center justify-center space-x-2.5 transition">
+            <a href="{{ route('auth.google') }}" class="w-full border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold text-xs py-3 px-4 rounded-xl flex items-center justify-center space-x-2.5 transition">
                 <svg class="w-4 h-4" viewBox="0 0 24 24">
                     <path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.866-3.577-7.866-8s3.536-8 7.866-8c2.46 0 4.105 1.025 5.047 1.926l3.256-3.133C18.417.99 15.564 0 12.24 0 5.48 0 0 5.37 0 12s5.48 12 12.24 12c7.06 0 11.758-4.918 11.758-11.83 0-.796-.08-1.4-.184-1.885H12.24z"/>
                 </svg>
                 <span>Continue with Google</span>
-            </button>
+                </a>
 
             <div class="relative flex py-5 items-center">
                 <div class="flex-grow border-t border-gray-100"></div>
