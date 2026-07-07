@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\LaporanController;
+// TAMBAHAN UNTUK PROSES REQUEST VERIFIKASI EMAIL
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 
 // ==========================================
 // 1. HALAMAN YANG BISA DIAKSES TANPA LOGIN
@@ -30,10 +33,33 @@ Route::middleware('guest')->group(function () {
 });
 
 // ==========================================
-// 2. HALAMAN YANG WAJIB LOGIN (USER BIASA)
+// 🔴 RUTE VERIFIKASI EMAIL (TETAP DIPERTAHANKAN UNTUK ALUR SETELAH REGISTER)
 // ==========================================
+// 1. Tampilan halaman pemberitahuan "Silahkan Cek Email Anda" setelah sukses register
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+// 2. Memproses link verifikasi saat pengguna mengklik tombol di dalam Gmail mereka
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    return redirect()->route('beranda')->with('success', 'Email berhasil diverifikasi!');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+// 3. Aksi ketika pengguna menekan tombol "Kirim Ulang Email"
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return back()->with('status', 'verification-link-sent');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
+
+// ==========================================
+// 2. HALAMAN YANG WAJIB LOGIN (TIDAK DIKUNCI VERIFIKASI EMAIL)
+// ==========================================
+// 🔴 MODIFIKASI: Middleware 'verified' dihapus total dari sini. 
+// User biasa maupun baru bebas mengakses semua fitur ini asal sudah login.
 Route::middleware(['auth'])->group(function () {
-    // Proses Logout (Menggunakan AuthController asli Anda)
+    // Proses Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     // Halaman Keranjang Belanja
@@ -45,11 +71,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [BookingController::class, 'showCheckout'])->name('checkout');
     Route::post('/checkout', [BookingController::class, 'storeCheckout'])->name('checkout.store');
     Route::get('/riwayat', [BookingController::class, 'riwayatUser'])->name('riwayat');
-    
-    // Manajemen Profil (Sudah dibersihkan dari duplikasi rute ganda)
+
+    // Manajemen Profil
     Route::get('/profil', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profil/update', [ProfileController::class, 'update'])->name('profile.update');
 });
+
 
 // ==========================================
 // 3. HALAMAN POLA PROTEKSI ADMIN (PREFIX)
@@ -74,13 +101,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('/pemesanan', [BookingController::class, 'index'])->name('booking.index');
     Route::patch('/booking/{id}/status', [BookingController::class, 'updateStatus'])->name('booking.updateStatus');
     
-    // RUTE BARU: Menangani penghapusan data transaksi dan pengosongan kursi via Admin
+    // Menangani penghapusan data transaksi dan pengosongan kursi via Admin
     Route::delete('/booking/{id}', [BookingController::class, 'destroy'])->name('booking.destroy');
     
     // Manajemen User
     Route::resource('user', UserController::class)->only(['index', 'update']);
 
-    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');});
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
+});
     
 
 // Menjaga kompatibilitas jika ada file auth bawaan lama

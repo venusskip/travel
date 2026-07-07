@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+// 🔴 MEMASTIKAN EVENT REGISTERED SUDAH TERINPORT DI SINI
+use Illuminate\Auth\Events\Registered;
 
 class AuthController extends Controller
 {
@@ -62,10 +64,14 @@ class AuthController extends Controller
             'role' => 'user', // Default role pendaftaran awal
         ]);
 
+        // 🔴 PERBAIKAN 1: Memicu Laravel untuk otomatis mengirim link verifikasi ke Gmail user
+        event(new Registered($user));
+
         // Otomatis login setelah berhasil mendaftar
         Auth::login($user);
 
-        return redirect()->route('beranda')->with('success', 'Akun berhasil dibuat!');
+        // 🔴 PERBAIKAN 2: Diarahkan langsung ke rute pemberitahuan verifikasi (verification.notice)
+        return redirect()->route('verification.notice');
     }
 
     // Memproses Logout Pengguna
