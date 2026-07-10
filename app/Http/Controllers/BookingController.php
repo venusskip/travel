@@ -32,6 +32,65 @@ class BookingController extends Controller
         return view('checkout', compact('user', 'cartItems', 'grandTotal'));
     }
 
+    // Tambahkan Method Baru Ini di dalam BookingController
+public function directCheckout(Request $request)
+{
+    $request->validate([
+        'id_jadwal' => 'required',
+        'kursi_dipilih' => 'required|array|min:1',
+    ], [
+        'kursi_dipilih.required' => 'Anda harus memilih minimal 1 kursi sebelum melakukan pembelian langsung.',
+    ]);
+
+    $userId = Auth::id();
+    $jadwal = TravelSchedule::findOrFail($request->id_jadwal);
+    
+    // --- VALIDASI: Cek apakah ada kursi pilihan yang sudah terisi di database ---
+    $kursiTerpesan = $jadwal->kursi_terpesan ?? [];
+    foreach ($request->kursi_dipilih as $kursi) {
+        if (in_array($kursi, $kursiTerpesan)) {
+            return redirect()->back()->withErrors(['kursi_error' => "Kursi nomor $kursi sudah dipesan oleh orang lain. Silakan pilih kursi lain!"]);
+        }
+    }
+
+    // --- PROSES KERANJANG DI BALIK LAYAR ---
+    // Cek dulu apakah item dengan jadwal ini sudah ada di keranjang user
+    $existingCart = CartItem::where('created_by_id', $userId)
+                            ->where('id_jadwal', $jadwal->id)
+                            ->first();
+
+    $jumlahTiket = count($request->kursi_dipilih);
+    $totalHarga = $jadwal->harga * $jumlahTiket;
+
+    if ($existingCart) {
+        // Jika sudah ada, timpa data kursi lama dengan data kursi pilihan baru
+        $existingCart->update([
+            'kursi_dipilih' => $request->kursi_dipilih,
+            'jumlah_tiket' => $jumlahTiket,
+            'total_harga' => $totalHarga,
+        ]);
+    } else {
+        // Jika belum ada, buat item keranjang baru
+        CartItem::create([
+            'created_by_id' => $userId,
+            'id_jadwal' => $jadwal->id,
+            'nama_travel' => $jadwal->nama_travel,
+            'kota_asal' => $jadwal->kota_asal,
+            'kota_tujuan' => $jadwal->kota_tujuan,
+            'tanggal_berangkat' => $jadwal->tanggal_berangkat,
+            'jam_berangkat' => $jadwal->jam_berangkat,
+            'jumlah_tiket' => $jumlahTiket,
+            'kursi_dipilih' => $request->kursi_dipilih,
+            'harga_per_tiket' => $jadwal->harga,
+            'total_harga' => $totalHarga,
+            'jenis_layanan' => $jadwal->jenis_layanan,
+        ]);
+    }
+
+    // Alihkan langsung ke halaman checkout asli milikmu
+    return redirect()->route('checkout')->with('success', 'Silakan lengkapi data pemesanan Anda.');
+}
+
     // 2. Proses Menyimpan Form Checkout Dinamis
     public function storeCheckout(Request $request)
 {

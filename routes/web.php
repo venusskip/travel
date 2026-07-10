@@ -71,6 +71,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/keranjang/tambah', [CartController::class, 'store'])->name('cart.store');
     Route::delete('/keranjang/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
 
+    Route::post('/checkout/direct', [BookingController::class, 'directCheckout'])->name('checkout.direct');
+
     // Halaman Transaksi & Data Diri Pengguna
     Route::get('/checkout', [BookingController::class, 'showCheckout'])->name('checkout');
     Route::post('/checkout', [BookingController::class, 'storeCheckout'])->name('checkout.store');
