@@ -44,14 +44,18 @@
     </div>
 
     <div class="space-y-1 text-sm border-t border-gray-700/50 pt-4">
-        <a href="{{ route('beranda') }}" class="flex items-center gap-2 px-4 py-2 hover:text-white transition">
-    <span>&lt;</span> Kembali ke Website
-</a>
+    <a href="{{ route('beranda') }}" class="flex items-center gap-2 px-4 py-2 hover:text-white transition">
+        <span>&lt;</span> Kembali ke Website
+    </a>
 
-        
+    <form method="POST" action="{{ route('logout') }}" id="logout-form" class="hidden">
+        @csrf
+    </form>
 
-        <a href="#" class="flex items-center gap-2 px-4 py-2 text-red-400 hover:text-red-300 transition">
-            <span>↳</span> Keluar
-        </a>
-    </div>
+    <a href="{{ route('logout') }}" 
+       onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+       class="flex items-center gap-2 px-4 py-2 text-red-400 hover:text-red-300 transition cursor-pointer">
+        <span>↳</span> Keluar
+    </a>
+</div>
 </div>

@@ -13,10 +13,9 @@
         <div>
             <h3 class="text-white font-semibold mb-4 text-base">Layanan Kami</h3>
             <ul class="space-y-2.5">
-                <li><a href="#" class="hover:text-white transition">Travel Antar Kota</a></li>
-                <li><a href="#" class="hover:text-white transition">Travel Bandara</a></li>
-                <li><a href="#" class="hover:text-white transition">Travel Wisata</a></li>
-                <li><a href="#" class="hover:text-white transition">Travel Eksekutif</a></li>
+                <li class="">Travel Antar Kota</a></li>
+                <li class="">Travel Wisata</a></li>
+                <li class="">Travel Eksekutif</a></li>
             </ul>
         </div>
 

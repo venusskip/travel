@@ -135,23 +135,25 @@
 
                     <div class="max-w-xs grid grid-cols-4 gap-3">
                         @for($i = 1; $i <= $jadwal->total_kursi; $i++)
-                            @php
-                                $isTerpesan = is_array($jadwal->kursi_terpesan) && in_array($i, $jadwal->kursi_terpesan);
-                            @endphp
+    @php
+        $isTerpesan = is_array($jadwal->kursi_terpesan) && in_array($i, $jadwal->kursi_terpesan);
+    @endphp
 
-                            @if($isTerpesan)
-                                <button type="button" class="h-12 bg-gray-200 text-gray-400 font-bold text-xs rounded-lg flex items-center justify-center cursor-not-allowed" disabled>{{ $i }}</button>
-                            @else
-                                <label class="relative cursor-pointer select-none">
-                                    <input type="checkbox" name="kursi_dipilih[]" value="{{ $i }}" x-model="selectedSeats" class="sr-only">
-                                    
-                                    <div class="h-12 w-full text-xs font-semibold rounded-lg flex items-center justify-center transition border"
-                                         :class="selectedSeats.includes({{ $i }}) ? 'bg-blue-50 border-blue-500 text-blue-600 font-bold' : 'border-gray-200 text-gray-700 hover:border-blue-500'">
-                                        {{ $i }}
-                                    </div>
-                                </label>
-                            @endif
-                        @endfor
+    @if($isTerpesan)
+        {{-- Kursi yang sudah terisi/sold out --}}
+        <button type="button" class="h-12 bg-gray-200 text-gray-400 font-bold text-xs rounded-lg flex items-center justify-center cursor-not-allowed" disabled>{{ $i }}</button>
+    @else
+        {{-- Kursi yang tersedia dan bisa dipilih --}}
+        <label class="relative cursor-pointer select-none">
+            <input type="checkbox" name="kursi_dipilih[]" value="{{ $i }}" x-model="selectedSeats" class="sr-only">
+            
+            <div class="h-12 w-full text-xs font-semibold rounded-lg flex items-center justify-center transition border"
+                 :class="selectedSeats.includes('{{ $i }}') ? 'bg-blue-50 border-blue-500 text-blue-600 font-bold shadow-sm ring-2 ring-blue-500/20' : 'border-gray-200 text-gray-700 hover:border-blue-500'">
+                {{ $i }}
+            </div>
+        </label>
+    @endif
+@endfor
                     </div>
                 </div>
             </div>
@@ -189,6 +191,16 @@
                             <span class="font-bold text-blue-600">Rp <span x-text="new International.NumberFormat('id-ID').format((selectedSeats.length || 1) * ticketPrice)"></span></span>
                         </div>
                     </div>
+
+                    <button type="submit" 
+                    formaction="{{ route('checkout.direct') }}" 
+                    class="w-full mb-3 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition shadow-md shadow-orange-500/10">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                <span>Beli Sekarang</span>
+            </button>
+
 
                     <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition shadow-md shadow-blue-600/10">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>

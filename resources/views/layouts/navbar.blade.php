@@ -11,8 +11,7 @@
             <div class="hidden md:flex space-x-4 text-sm font-medium">
                 <a href="{{ route('beranda') }}" class="{{ request()->is('/') ? 'text-blue-600 bg-blue-50' : 'text-gray-500 hover:text-blue-600' }} px-4 py-2 rounded-lg transition">Beranda</a>
                 <a href="/jadwal" class="{{ request()->is('jadwal') ? 'text-blue-600 bg-blue-50' : 'text-gray-500 hover:text-blue-600' }} px-4 py-2 rounded-lg transition">Jadwal Travel</a>
-                <a href="/riwayat" class="text-gray-500 hover:text-blue-600 px-4 py-2 rounded-lg transition">Riwayat</a>
-            </div>
+                <a href="{{ route('riwayat') }}" class="{{ request()->routeIs('riwayat') ? 'text-blue-600 bg-blue-50' : 'text-gray-500 hover:text-blue-600' }} px-4 py-2 rounded-lg transition">Riwayat</a>            </div>
 
             <div class="flex items-center space-x-4">
                 <a href="/keranjang" class="text-gray-400 hover:text-blue-600 p-2">
