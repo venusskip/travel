@@ -14,13 +14,19 @@ class HomeController extends Controller
         $kotaAsal = Route::distinct()->pluck('kota_asal');
         $kotaTujuan = Route::distinct()->pluck('kota_tujuan');
 
-        // 2. Ambil jadwal travel terbaru yang aktif (dibatasi maksimal 6 data)
+        // 2. AMBIL SEMUA DATA RUTE UTUH (Untuk bagian Rute Populer)
+        // Kita ambil semua rute yang statusnya aktif (jika ada kolom 'aktif' di tabel routes Anda)
+        $popularRoutes = Route::all(); 
+        // Catatan: Jika Anda memiliki kolom 'aktif' di tabel routes, gunakan:
+        // $popularRoutes = Route::where('aktif', true)->get();
+
+        // 3. Ambil jadwal travel terbaru yang aktif (dibatasi maksimal 6 data)
         $schedules = TravelSchedule::where('aktif', true)
                         ->orderBy('tanggal_berangkat', 'asc')
                         ->take(6)
                         ->get();
 
-        // 3. Kirim data ke file blade beranda
-        return view('beranda', compact('kotaAsal', 'kotaTujuan', 'schedules'));
+        // 4. Kirim semua data (termasuk $popularRoutes) ke file blade beranda
+        return view('beranda', compact('kotaAsal', 'kotaTujuan', 'schedules', 'popularRoutes'));
     }
 }
