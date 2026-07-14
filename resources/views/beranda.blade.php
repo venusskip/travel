@@ -126,34 +126,33 @@
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {{-- PERBAIKAN: Mengambil langsung dari variabel $kotaAsal / $kotaTujuan atau modifikasi rute dari DB --}}
-        @if($kotaAsal->isEmpty())
+        @if($popularRoutes->isEmpty())
             <div class="col-span-1 sm:col-span-2 lg:col-span-4 text-center py-6 text-gray-400 text-sm bg-white rounded-xl border border-gray-100">
                 Belum ada data rute di database.
             </div>
         @else
-            {{-- Menggunakan data rute asli dari database melalui variabel yang dikirim Controller --}}
-            @foreach($kotaAsal as $index => $asal)
-                {{-- Kita pasangkan dengan kota tujuan yang tersedia berdasarkan index --}}
-                @php 
-                    $tujuan = $kotaTujuan[$index] ?? $kotaTujuan->first(); 
-                @endphp
-                
-                <a href="/jadwal?asal={{ urlencode($asal) }}&tujuan={{ urlencode($tujuan) }}" class="bg-white p-4 rounded-xl border border-gray-100 flex items-center justify-between shadow-sm hover:shadow-md hover:border-blue-200 transition block">
+            @foreach($popularRoutes as $rute)
+                <a href="/jadwal?asal={{ urlencode($rute->kota_asal) }}&tujuan={{ urlencode($rute->kota_tujuan) }}" class="bg-white p-4 rounded-xl border border-gray-100 flex items-center justify-between shadow-sm hover:shadow-md hover:border-blue-200 transition block">
                     <div class="flex items-center justify-between w-full">
                         <div class="flex items-center space-x-3">
                             <div class="bg-blue-50 text-blue-600 p-2 rounded-lg">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                </svg>
                             </div>
                             <div>
-                                <div class="text-xs font-bold text-slate-800">{{ $asal }}</div>
+                                <div class="text-xs font-bold text-slate-800">{{ $rute->kota_asal }}</div>
                                 <div class="text-[10px] text-gray-400 flex items-center">
-                                    <svg class="w-2.5 h-2.5 mx-0.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                                    {{ $tujuan }}
+                                    <svg class="w-2.5 h-2.5 mx-0.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                    </svg>
+                                    {{ $rute->kota_tujuan }}
                                 </div>
                             </div>
                         </div>
-                        <svg class="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        <svg class="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
                     </div>
                 </a>
             @endforeach
